@@ -1,28 +1,31 @@
 import React, { useRef, useState } from "react";
-import axios from 'axios'
+import axios from "axios";
 
 const App = () => {
   const inputRef = useRef();
   const actualURLRef = useRef();
   const copybtnRef = useRef();
+  const [LoadingStatus, setLoadingStatus] = useState(false);
   const [CopyBtnText, setCopyBtnText] = useState("Copy");
-
   const [actualURL, setactualURL] = useState("");
-  const [ShortUrl, setShortUrl] = useState("")
+  const [ShortUrl, setShortUrl] = useState("");
 
-const submitHandler = async (e)=>{
-   e.preventDefault();
-   const response = await axios.post("https://urlshortner-jh24.onrender.com/url",{
-    actualURL:actualURL,
-   })
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    setLoadingStatus(true);
+    const response = await axios.post(
+      "https://urlshortner-jh24.onrender.com/url",
+      {
+        actualURL: actualURL,
+      },
+    );
     setactualURL("");
-    actualURLRef.current.placeholder = "https://www.example.com/very-long-url"
-   setShortUrl(response.data.shortURL);
-}
+    actualURLRef.current.placeholder = "https://www.example.com/very-long-url";
+    setShortUrl(response.data.shortURL);
+    setLoadingStatus(false);
+  };
 
-
-
-//functiono to copy URL
+  //functiono to copy URL
   const copyURL = async (e) => {
     e.preventDefault();
     await navigator.clipboard.writeText(inputRef.current.value);
@@ -60,9 +63,11 @@ const submitHandler = async (e)=>{
             <div className="url w-full h-13 border-2 border-gray-200 rounded p-2 flex items-center gap-1">
               🔗
               <input
-              ref={actualURLRef}
-              value={actualURL}
-                onChange={(e)=>{setactualURL(e.target.value)}}
+                ref={actualURLRef}
+                value={actualURL}
+                onChange={(e) => {
+                  setactualURL(e.target.value);
+                }}
                 className="w-full h-full border-none outline-none"
                 type="text"
                 name="actualURL"
@@ -70,9 +75,16 @@ const submitHandler = async (e)=>{
               />
             </div>
             <button
-            onClick={submitHandler}
-             className="w-full h-12 bg-[#716ffc] text-white rounded font-bold cursor-pointer hover:bg-[#5856fd]">
-              Shorten URL <i className="ri-arrow-right-line"></i>
+              onClick={submitHandler}
+              className="w-full h-12 bg-[#716ffc] text-white rounded font-bold cursor-pointer hover:bg-[#5856fd] active:scale-98"
+            >
+              { LoadingStatus ? (
+                "Loading..."
+              ) : (
+                <>
+                  Shorten URL <i className="ri-arrow-right-line"></i>
+                </>
+              )}
             </button>
             <p className="font-semibold text-[#29253d] -mb-3">
               Your short link
@@ -85,7 +97,7 @@ const submitHandler = async (e)=>{
                 type="text"
                 placeholder="https://urlshortner-jh24.onrender.com/shortURL"
                 value={ShortUrl}
-                onChange={(e)=>setShortUrl(e.target.value)}
+                onChange={(e) => setShortUrl(e.target.value)}
               />
               <button
                 onClick={copyURL}
